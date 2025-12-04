@@ -23,7 +23,8 @@ Route::middleware(['tenant', 'auth'])->group(function () {
     Route::post('/servis/{id}/update-status', [ServisController::class, 'updateStatus'])->name('servis.updateStatus');
     Route::post('/servis/{id}/tambah-sparepart', [ServisController::class, 'tambahSparepart'])->name('servis.tambahSparepart');
     Route::get('garansi/cek', [GaransiController::class, 'cek'])->name('garansi.cek');
-    Route::resource('garansi', GaransiController::class)->except(['show']);
-    Route::resource('klaim-garansi', KlaimGaransiController::class);
+    Route::get('garansi/{garansi}/klaim/buat', [KlaimGaransiController::class, 'create'])->name('garansi.klaim.create');
+    Route::post('garansi/{garansi}/klaim', [KlaimGaransiController::class, 'store'])->name('garansi.klaim.store');
+    Route::resource('garansi', GaransiController::class);
     Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
 });
