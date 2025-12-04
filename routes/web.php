@@ -1,12 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{AuthController,TenantController,DashboardController,ProdukController,PelangganController,SupplierController,KasirController,ServisController,GaransiController,KlaimGaransiController,LaporanController};
+use App\Http\Controllers\{AuthController,TenantController,DashboardController,ProdukController,PelangganController,SupplierController,KasirController,ServisController,GaransiController,KlaimGaransiController,LaporanController,TenantRegisterController};
 
 Route::get('/', [TenantController::class, 'daftar'])->name('tenant.daftar');
 Route::get('/masuk', [AuthController::class, 'index'])->name('login');
 
-Route::middleware('tenant')->group(function () {
+Route::get('/daftar-tenant', [TenantRegisterController::class, 'create'])->name('tenant.register');
+Route::post('/daftar-tenant', [TenantRegisterController::class, 'store'])->name('tenant.register.store');
+
+Route::middleware(['tenant', 'auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('produk', ProdukController::class);
     Route::resource('pelanggan', PelangganController::class);
