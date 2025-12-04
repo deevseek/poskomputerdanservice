@@ -15,6 +15,7 @@ Route::middleware(['tenant', 'auth'])->group(function () {
     Route::resource('pelanggan', PelangganController::class);
     Route::resource('supplier', SupplierController::class);
     Route::get('kasir', [KasirController::class, 'index'])->name('kasir.index');
+    Route::post('kasir/transaksi', [KasirController::class, 'store'])->name('kasir.store');
     Route::resource('servis', ServisController::class);
     Route::get('garansi/cek', [GaransiController::class, 'cek'])->name('garansi.cek');
     Route::resource('garansi', GaransiController::class)->except(['show']);
