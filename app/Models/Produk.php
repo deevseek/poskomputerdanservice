@@ -16,9 +16,9 @@ class Produk extends Model
 
     protected $fillable = [
         'tenant_id',
-        'kategori_produk_id',
+        'kategori_id',
         'nama_produk',
-        'kode_sku',
+        'sku',
         'jenis_produk',
         'harga_beli',
         'harga_jual',
@@ -33,7 +33,7 @@ class Produk extends Model
 
     public function kategoriProduk()
     {
-        return $this->belongsTo(KategoriProduk::class);
+        return $this->belongsTo(KategoriProduk::class, 'kategori_id');
     }
 
     public function pergerakanStok()
