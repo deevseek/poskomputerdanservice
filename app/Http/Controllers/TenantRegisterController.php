@@ -31,7 +31,7 @@ class TenantRegisterController extends Controller
 
         $tenant = Tenant::create([
             'plan_id' => $validated['plan_id'] ?? null,
-            'nama_tenant' => $validated['nama_toko'],
+            'nama_toko' => $validated['nama_toko'],
             'slug' => $slug,
             'subdomain' => $slug,
             'status' => 'aktif',

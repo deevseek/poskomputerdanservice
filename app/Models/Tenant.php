@@ -14,12 +14,12 @@ class Tenant extends Model
 
     protected $fillable = [
         'plan_id',
-        'nama_tenant',
+        'nama_toko',
         'slug',
         'subdomain',
         'status',
-        'trial_berakhir_pada',
-        'langganan_berakhir_pada',
+        'trial_berakhir',
+        'langganan_berakhir',
     ];
 
     public function plan()

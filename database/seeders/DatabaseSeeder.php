@@ -21,11 +21,11 @@ class DatabaseSeeder extends Seeder
 
         $tenant = Tenant::create([
             'plan_id' => $basic->id,
-            'nama_tenant' => 'Contoh Komputer',
+            'nama_toko' => 'Contoh Komputer',
             'slug' => 'contoh-komputer',
             'subdomain' => 'contoh',
             'status' => 'aktif',
-            'trial_berakhir_pada' => now()->addDays(14),
+            'trial_berakhir' => now()->addDays(14),
         ]);
 
         $kategori = KategoriProduk::create([
