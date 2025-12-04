@@ -1,47 +1,39 @@
-<h1>Daftar Tiket Servis</h1>
+@extends('layouts.app')
 
-@if(session('success'))
-    <p><strong>{{ session('success') }}</strong></p>
-@endif
-
-<form method="GET" action="{{ route('servis.index') }}">
-    <label for="status">Filter Status:</label>
-    <select name="status" id="status">
-        <option value="">Semua Status</option>
-        @foreach($statuses as $status)
-            <option value="{{ $status }}" {{ $statusFilter === $status ? 'selected' : '' }}>{{ $status }}</option>
-        @endforeach
-    </select>
-    <button type="submit">Terapkan</button>
-</form>
-
-<p><a href="{{ route('servis.create') }}">+ Buat Tiket Servis</a></p>
-
-<table border="1" cellpadding="8" cellspacing="0">
-    <thead>
-        <tr>
-            <th>Kode</th>
-            <th>Pelanggan</th>
-            <th>Perangkat</th>
-            <th>Teknisi</th>
-            <th>Status</th>
-            <th>Aksi</th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse($servisList as $servis)
-            <tr>
-                <td>{{ $servis['kode'] }}</td>
-                <td>{{ $servis['pelanggan'] }}</td>
-                <td>{{ $servis['perangkat'] }}</td>
-                <td>{{ $servis['teknisi'] }}</td>
-                <td>{{ $servis['status'] }}</td>
-                <td><a href="{{ route('servis.show', $servis['id']) }}">Detail</a></td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="6">Belum ada tiket servis.</td>
-            </tr>
-        @endforelse
-    </tbody>
-</table>
+@section('content')
+<div class="container">
+    <h1 class="mb-3">Daftar Tiket Servis</h1>
+    <a href="{{ route('servis.create') }}" class="btn btn-primary mb-3">Tambah Tiket</a>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Pelanggan</th>
+                    <th>Perangkat</th>
+                    <th>Status</th>
+                    <th>Teknisi</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($servisList as $item)
+                    <tr>
+                        <td>#{{ $item->id }}</td>
+                        <td>{{ $item->pelanggan->nama_pelanggan ?? '-' }}</td>
+                        <td>{{ $item->jenis_perangkat }} {{ $item->merk }} {{ $item->model }}</td>
+                        <td>{{ $item->status_servis }}</td>
+                        <td>{{ $item->teknisi->name ?? '-' }}</td>
+                        <td><a href="{{ route('servis.show', $item->id) }}" class="btn btn-sm btn-info">Detail</a></td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center">Belum ada tiket.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+    {{ $servisList->links() }}
+</div>
+@endsection

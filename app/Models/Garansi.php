@@ -16,7 +16,7 @@ class Garansi extends Model
 
     protected $fillable = [
         'tenant_id',
-        'jenis_garansi',
+        'jenis',
         'referensi_id',
         'pelanggan_id',
         'tanggal_mulai',

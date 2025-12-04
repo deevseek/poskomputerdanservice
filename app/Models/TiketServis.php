@@ -17,14 +17,15 @@ class TiketServis extends Model
     protected $fillable = [
         'tenant_id',
         'pelanggan_id',
-        'nomor_tiket',
         'jenis_perangkat',
-        'merk_model',
+        'merk',
+        'model',
         'nomor_seri',
         'keluhan',
         'teknisi_id',
         'biaya_jasa',
         'status_servis',
+        'catatan_teknisi',
     ];
 
     public function tenant()

@@ -1,42 +1,36 @@
-<h1>Klaim Garansi</h1>
+@extends('layouts.app')
 
-<div style="margin-bottom:12px;">
-    <strong>Referensi Garansi:</strong> {{ $garansi['referensi_nomor'] }}<br>
-    <strong>Pelanggan:</strong> {{ $garansi['pelanggan'] }} ({{ $garansi['nomor_hp'] }})
+@section('content')
+<div class="container">
+    <h1 class="mb-3">Buat Klaim Garansi untuk #{{ $garansi->id }}</h1>
+    <form method="POST" action="{{ route('garansi.klaim.store', $garansi->id) }}">
+        @csrf
+        <div class="mb-3">
+            <label class="form-label">Pelanggan</label>
+            <input type="text" class="form-control" value="{{ $garansi->pelanggan->nama_pelanggan ?? '-' }}" disabled>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Deskripsi Keluhan</label>
+            <textarea name="deskripsi_keluhan" class="form-control" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Teknisi</label>
+            <input type="number" name="teknisi_id" class="form-control" placeholder="ID teknisi (opsional)">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Status Klaim</label>
+            <select name="status_klaim" class="form-select">
+                @foreach($statusKlaim as $status)
+                    <option value="{{ $status }}">{{ ucfirst(str_replace('_',' ',$status)) }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Catatan Penyelesaian</label>
+            <textarea name="catatan_penyelesaian" class="form-control"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Kirim Klaim</button>
+        <a href="{{ route('garansi.show', $garansi->id) }}" class="btn btn-secondary">Kembali</a>
+    </form>
 </div>
-
-@if($errors->any())
-    <div style="background:#ffecec;border:1px solid #e3342f;padding:10px;margin-bottom:16px;">
-        <strong>Validasi gagal:</strong>
-        <ul>
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
-<form method="POST" action="{{ route('garansi.klaim.store', $garansi['id']) }}">
-    @csrf
-    <div style="margin-bottom:12px;">
-        <label for="deskripsi_keluhan">Deskripsi Keluhan</label><br>
-        <textarea id="deskripsi_keluhan" name="deskripsi_keluhan" rows="4" required>{{ old('deskripsi_keluhan') }}</textarea>
-    </div>
-
-    <div style="margin-bottom:12px;">
-        <label for="status_klaim">Status Klaim</label><br>
-        <select id="status_klaim" name="status_klaim" required>
-            @foreach($statusKlaim as $status)
-                <option value="{{ $status }}" @selected(old('status_klaim', 'Diajukan') === $status)>{{ $status }}</option>
-            @endforeach
-        </select>
-    </div>
-
-    <div style="margin-bottom:12px;">
-        <label for="catatan_penyelesaian">Catatan Penyelesaian (opsional)</label><br>
-        <textarea id="catatan_penyelesaian" name="catatan_penyelesaian" rows="3">{{ old('catatan_penyelesaian') }}</textarea>
-    </div>
-
-    <button type="submit" style="padding:10px 16px;background:#38c172;color:#fff;border:none;border-radius:4px;">Kirim Klaim</button>
-    <a href="{{ route('garansi.show', $garansi['id']) }}" style="margin-left:8px;">Batal</a>
-</form>
+@endsection

@@ -17,14 +17,11 @@ class Penjualan extends Model
     protected $fillable = [
         'tenant_id',
         'pelanggan_id',
-        'nomor_invoice',
-        'subtotal',
-        'diskon',
-        'pajak',
         'total',
-        'dibayar',
+        'bayar',
         'kembalian',
         'metode_pembayaran',
+        'catatan',
     ];
 
     public function tenant()

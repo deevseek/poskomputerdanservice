@@ -1,25 +1,28 @@
-<h1>Cek Garansi</h1>
+@extends('layouts.app')
 
-<form method="GET" action="{{ route('garansi.cek') }}" style="margin-bottom:16px;">
-    <label for="q">Nomor Invoice / Nomor Tiket / Nomor HP</label><br>
-    <input type="text" id="q" name="q" value="{{ $keyword }}" placeholder="Contoh: INV-2024-001 atau 0812xxxx" required>
-    <button type="submit">Cari</button>
-</form>
+@section('content')
+<div class="container">
+    <h1 class="mb-3">Cek Garansi</h1>
+    <form method="POST" action="{{ route('garansi.cek') }}" class="mb-3">
+        @csrf
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Masukkan ID referensi atau nama pelanggan" value="{{ $keyword }}">
+            <button class="btn btn-primary" type="submit">Cari</button>
+        </div>
+    </form>
 
-@if($keyword && !$garansi)
-    <div style="background:#ffecec;border:1px solid #e3342f;padding:10px;">
-        Garansi tidak ditemukan untuk kata kunci "{{ $keyword }}".
-    </div>
-@endif
-
-@if($garansi)
-    <div style="background:#f8fafc;border:1px solid #cbd5e0;padding:12px;">
-        <h3>Hasil Pencarian</h3>
-        <p><strong>Referensi:</strong> {{ $garansi['referensi_nomor'] }}</p>
-        <p><strong>Jenis Garansi:</strong> {{ ucfirst($garansi['jenis_garansi']) }}</p>
-        <p><strong>Pelanggan:</strong> {{ $garansi['pelanggan'] }} ({{ $garansi['nomor_hp'] }})</p>
-        <p><strong>Periode:</strong> {{ $garansi['tanggal_mulai'] }} s/d {{ $garansi['tanggal_berakhir'] }}</p>
-        <p><strong>Status:</strong> {{ $garansi['status'] }}</p>
-        <a href="{{ route('garansi.show', $garansi['id']) }}">Lihat detail</a>
-    </div>
-@endif
+    @if($garansi)
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Garansi #{{ $garansi->id }}</h5>
+                <p class="card-text">Pelanggan: {{ $garansi->pelanggan->nama_pelanggan ?? '-' }}</p>
+                <p class="card-text">Periode: {{ $garansi->tanggal_mulai }} - {{ $garansi->tanggal_berakhir }}</p>
+                <p class="card-text">Status: {{ ucfirst($garansi->status) }}</p>
+                <a href="{{ route('garansi.show', $garansi->id) }}" class="btn btn-link">Lihat Detail</a>
+            </div>
+        </div>
+    @elseif($keyword)
+        <div class="alert alert-warning">Garansi tidak ditemukan.</div>
+    @endif
+</div>
+@endsection

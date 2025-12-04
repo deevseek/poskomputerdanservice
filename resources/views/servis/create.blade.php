@@ -1,49 +1,72 @@
-<h1>Buat Tiket Servis</h1>
+@extends('layouts.app')
 
-@if($errors->any())
-    <div>
-        <p><strong>Terjadi kesalahan:</strong></p>
-        <ul>
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
-<form method="POST" action="{{ route('servis.store') }}">
-    @csrf
-    <div>
-        <label for="nama_pelanggan">Nama Pelanggan</label><br>
-        <input type="text" id="nama_pelanggan" name="nama_pelanggan" value="{{ old('nama_pelanggan') }}" required>
-    </div>
-
-    <div>
-        <label for="kontak">Kontak</label><br>
-        <input type="text" id="kontak" name="kontak" value="{{ old('kontak') }}" required>
-    </div>
-
-    <div>
-        <label for="perangkat">Perangkat</label><br>
-        <input type="text" id="perangkat" name="perangkat" value="{{ old('perangkat') }}" required>
-    </div>
-
-    <div>
-        <label for="keluhan">Keluhan</label><br>
-        <textarea id="keluhan" name="keluhan" rows="4" required>{{ old('keluhan') }}</textarea>
-    </div>
-
-    <div>
-        <label for="teknisi">Teknisi</label><br>
-        <select id="teknisi" name="teknisi" required>
-            <option value="">Pilih Teknisi</option>
-            @foreach($teknisiList as $teknisi)
-                <option value="{{ $teknisi }}" {{ old('teknisi') === $teknisi ? 'selected' : '' }}>{{ $teknisi }}</option>
-            @endforeach
-        </select>
-    </div>
-
-    <button type="submit">Simpan Tiket</button>
-</form>
-
-<p><a href="{{ route('servis.index') }}">Kembali ke daftar tiket</a></p>
+@section('content')
+<div class="container">
+    <h1 class="mb-3">Buat Tiket Servis</h1>
+    <form method="POST" action="{{ route('servis.store') }}">
+        @csrf
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Pelanggan</label>
+                <select name="pelanggan_id" class="form-select">
+                    <option value="">Pilih pelanggan</option>
+                    @foreach($pelanggan as $p)
+                        <option value="{{ $p->id }}">{{ $p->nama_pelanggan }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Teknisi</label>
+                <select name="teknisi_id" class="form-select">
+                    <option value="">Pilih teknisi</option>
+                    @foreach($teknisiList as $t)
+                        <option value="{{ $t->id }}">{{ $t->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Jenis Perangkat</label>
+                <input type="text" name="jenis_perangkat" class="form-control" required>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Merk</label>
+                <input type="text" name="merk" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Model</label>
+                <input type="text" name="model" class="form-control">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Nomor Seri</label>
+                <input type="text" name="nomor_seri" class="form-control">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Biaya Jasa (Rp)</label>
+                <input type="number" step="0.01" name="biaya_jasa" class="form-control" value="0">
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Keluhan</label>
+            <textarea name="keluhan" class="form-control" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Status Servis</label>
+            <select name="status_servis" class="form-select">
+                @foreach($statuses as $status)
+                    <option value="{{ $status }}">{{ $status }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Catatan Teknisi</label>
+            <textarea name="catatan_teknisi" class="form-control"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Simpan</button>
+        <a href="{{ route('servis.index') }}" class="btn btn-secondary">Kembali</a>
+    </form>
+</div>
+@endsection

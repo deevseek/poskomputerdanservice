@@ -15,6 +15,7 @@ class KlaimGaransi extends Model
     protected $table = 'klaim_garansi';
 
     protected $fillable = [
+        'tenant_id',
         'garansi_id',
         'pelanggan_id',
         'deskripsi_keluhan',

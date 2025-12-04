@@ -2,7 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pelanggan;
+use App\Models\Produk;
+use App\Models\SparepartServis;
+use App\Models\TiketServis;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ServisController extends Controller
 {
@@ -10,57 +17,71 @@ class ServisController extends Controller
         'Menunggu',
         'Diperiksa',
         'Menunggu Sparepart',
-        'Sedang Dikerjakan',
+        'Dalam Perbaikan',
         'Selesai',
         'Dibatalkan',
     ];
 
-    public function index(Request $request)
+    public function index()
     {
-        $statusFilter = $request->query('status');
-        $servisList = collect($this->sampleServisData());
-
-        if ($statusFilter) {
-            $servisList = $servisList->where('status', $statusFilter);
-        }
+        $tenant = app('tenant');
+        $tiket = TiketServis::with(['pelanggan', 'teknisi'])
+            ->where('tenant_id', $tenant->id)
+            ->latest()
+            ->paginate(15);
 
         return view('servis.index', [
-            'servisList' => $servisList->values(),
+            'servisList' => $tiket,
             'statuses' => $this->statusServis,
-            'statusFilter' => $statusFilter,
         ]);
     }
 
     public function create()
     {
+        $tenant = app('tenant');
+        $pelanggan = Pelanggan::where('tenant_id', $tenant->id)->orderBy('nama_pelanggan')->get();
+        $teknisi = User::where('tenant_id', $tenant->id)->whereIn('role', ['teknisi', 'admin'])->get();
+
         return view('servis.create', [
             'statuses' => $this->statusServis,
-            'teknisiList' => ['Raka', 'Siti', 'Bagus'],
+            'teknisiList' => $teknisi,
+            'pelanggan' => $pelanggan,
         ]);
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_pelanggan' => ['required', 'string'],
-            'kontak' => ['required', 'string'],
-            'perangkat' => ['required', 'string'],
+        $tenant = app('tenant');
+        $data = $request->validate([
+            'pelanggan_id' => ['nullable', 'exists:pelanggan,id'],
+            'teknisi_id' => ['nullable', 'exists:users,id'],
+            'jenis_perangkat' => ['required', 'string'],
+            'merk' => ['nullable', 'string'],
+            'model' => ['nullable', 'string'],
+            'nomor_seri' => ['nullable', 'string'],
             'keluhan' => ['required', 'string'],
-            'teknisi' => ['required', 'string'],
+            'biaya_jasa' => ['nullable', 'numeric', 'min:0'],
+            'status_servis' => ['required', 'in:' . implode(',', $this->statusServis)],
+            'catatan_teknisi' => ['nullable', 'string'],
         ]);
 
-        return redirect()
-            ->route('servis.index')
-            ->with('success', 'Tiket servis berhasil dibuat (contoh simulasi tanpa penyimpanan data).');
+        $data['tenant_id'] = $tenant->id;
+
+        TiketServis::create($data);
+
+        return redirect()->route('servis.index')->with('success', 'Tiket servis berhasil dibuat.');
     }
 
     public function show(int $id)
     {
-        $servis = collect($this->sampleServisData())->firstWhere('id', $id);
+        $tenant = app('tenant');
+        $servis = TiketServis::with(['pelanggan', 'teknisi', 'sparepartServis.produk'])
+            ->where('tenant_id', $tenant->id)
+            ->findOrFail($id);
 
-        abort_if(!$servis, 404);
-
-        $spareparts = collect($this->produkContoh());
+        $spareparts = Produk::where('tenant_id', $tenant->id)
+            ->where('jenis_produk', 'sparepart_servis')
+            ->get();
 
         return view('servis.show', [
             'servis' => $servis,
@@ -71,73 +92,53 @@ class ServisController extends Controller
 
     public function updateStatus(int $id, Request $request)
     {
+        $tenant = app('tenant');
         $request->validate([
             'status' => ['required', 'in:' . implode(',', $this->statusServis)],
+            'catatan_teknisi' => ['nullable', 'string'],
         ]);
 
-        return redirect()
-            ->route('servis.show', $id)
-            ->with('success', 'Status tiket diperbarui menjadi: ' . $request->status . ' (contoh simulasi).');
+        $servis = TiketServis::where('tenant_id', $tenant->id)->findOrFail($id);
+        $servis->update([
+            'status_servis' => $request->status,
+            'catatan_teknisi' => $request->catatan_teknisi,
+        ]);
+
+        return redirect()->route('servis.show', $id)->with('success', 'Status tiket diperbarui.');
     }
 
     public function tambahSparepart(int $id, Request $request)
     {
-        $request->validate([
-            'produk_id' => ['required', 'integer'],
-            'jumlah' => ['required', 'integer', 'min:1'],
+        $tenant = app('tenant');
+        $data = $request->validate([
+            'produk_id' => ['required', 'integer', 'exists:produk,id'],
+            'qty' => ['required', 'integer', 'min:1'],
+            'harga' => ['required', 'numeric', 'min:0'],
         ]);
 
-        return redirect()
-            ->route('servis.show', $id)
-            ->with('success', 'Sparepart berhasil ditambahkan ke tiket (contoh simulasi).');
-    }
+        $servis = TiketServis::where('tenant_id', $tenant->id)->findOrFail($id);
+        $produk = Produk::where('tenant_id', $tenant->id)->findOrFail($data['produk_id']);
 
-    private function sampleServisData(): array
-    {
-        return [
-            [
-                'id' => 1,
-                'kode' => 'SV-001',
-                'pelanggan' => 'Andi Wijaya',
-                'kontak' => '0812-3456-7890',
-                'perangkat' => 'Laptop - Dell Inspiron 14',
-                'keluhan' => 'Laptop mati total setelah terkena air.',
-                'teknisi' => 'Raka',
-                'status' => 'Diperiksa',
-                'catatan' => 'Perlu pengecekan motherboard dan keyboard.',
-            ],
-            [
-                'id' => 2,
-                'kode' => 'SV-002',
-                'pelanggan' => 'Siti Rahma',
-                'kontak' => '0821-1111-2222',
-                'perangkat' => 'Handphone - Samsung A52',
-                'keluhan' => 'Layar retak dan sentuh kurang responsif.',
-                'teknisi' => 'Siti',
-                'status' => 'Menunggu Sparepart',
-                'catatan' => 'Menunggu stok layar pengganti.',
-            ],
-            [
-                'id' => 3,
-                'kode' => 'SV-003',
-                'pelanggan' => 'Bagus Pratama',
-                'kontak' => '0877-8888-9999',
-                'perangkat' => 'PC Rakitan',
-                'keluhan' => 'Sering restart sendiri saat digunakan.',
-                'teknisi' => 'Bagus',
-                'status' => 'Sedang Dikerjakan',
-                'catatan' => 'Tes PSU dan RAM, kemungkinan overheat.',
-            ],
-        ];
-    }
+        if ($data['qty'] > $produk->stok) {
+            throw ValidationException::withMessages([
+                'qty' => 'Stok produk tidak mencukupi.',
+            ]);
+        }
 
-    private function produkContoh(): array
-    {
-        return [
-            ['id' => 101, 'nama' => 'Layar Samsung A52', 'stok' => 3],
-            ['id' => 102, 'nama' => 'Keyboard Laptop Dell', 'stok' => 5],
-            ['id' => 103, 'nama' => 'RAM DDR4 8GB', 'stok' => 7],
-            ['id' => 104, 'nama' => 'Thermal Paste Premium', 'stok' => 10],
-        ];
+        DB::transaction(function () use ($produk, $data, $servis, $tenant) {
+            $subtotal = $data['qty'] * $data['harga'];
+
+            SparepartServis::create([
+                'tiket_servis_id' => $servis->id,
+                'produk_id' => $produk->id,
+                'qty' => $data['qty'],
+                'harga' => $data['harga'],
+                'subtotal' => $subtotal,
+            ]);
+
+            $produk->decrement('stok', $data['qty']);
+        });
+
+        return redirect()->route('servis.show', $id)->with('success', 'Sparepart berhasil ditambahkan.');
     }
 }
