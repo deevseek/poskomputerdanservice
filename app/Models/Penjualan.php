@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Model untuk transaksi penjualan per tenant.
+ */
 class Penjualan extends Model
 {
     use HasFactory;
@@ -12,16 +15,35 @@ class Penjualan extends Model
     protected $table = 'penjualan';
 
     protected $fillable = [
-        'tenant_id','pelanggan_id','nomor_invoice','subtotal','diskon','pajak','total','dibayar','kembalian','metode_pembayaran'
+        'tenant_id',
+        'pelanggan_id',
+        'nomor_invoice',
+        'subtotal',
+        'diskon',
+        'pajak',
+        'total',
+        'dibayar',
+        'kembalian',
+        'metode_pembayaran',
     ];
 
-    public function items()
+    public function tenant()
     {
-        return $this->hasMany(ItemPenjualan::class, 'penjualan_id');
+        return $this->belongsTo(Tenant::class);
+    }
+
+    public function pelanggan()
+    {
+        return $this->belongsTo(Pelanggan::class);
+    }
+
+    public function itemPenjualan()
+    {
+        return $this->hasMany(ItemPenjualan::class);
     }
 
     public function pembayaran()
     {
-        return $this->hasMany(Pembayaran::class, 'penjualan_id');
+        return $this->hasMany(Pembayaran::class);
     }
 }

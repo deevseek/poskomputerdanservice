@@ -6,26 +6,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Model untuk mencatat pergerakan stok per produk.
+ * Model untuk pemakaian sparepart pada proses servis.
  */
-class PergerakanStok extends Model
+class SparepartServis extends Model
 {
     use HasFactory;
 
-    protected $table = 'pergerakan_stok';
+    protected $table = 'sparepart_servis';
 
     protected $fillable = [
-        'tenant_id',
+        'tiket_servis_id',
         'produk_id',
-        'jenis',
-        'referensi',
-        'jumlah',
-        'catatan',
+        'qty',
+        'biaya',
     ];
 
-    public function tenant()
+    public function tiketServis()
     {
-        return $this->belongsTo(Tenant::class);
+        return $this->belongsTo(TiketServis::class);
     }
 
     public function produk()

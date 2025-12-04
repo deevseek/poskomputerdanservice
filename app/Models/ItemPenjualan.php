@@ -5,13 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Model untuk detail item pada transaksi penjualan.
+ */
 class ItemPenjualan extends Model
 {
     use HasFactory;
 
     protected $table = 'item_penjualan';
 
-    protected $fillable = ['penjualan_id','produk_id','qty','harga','total'];
+    protected $fillable = [
+        'penjualan_id',
+        'produk_id',
+        'qty',
+        'harga',
+        'total',
+    ];
 
     public function penjualan()
     {

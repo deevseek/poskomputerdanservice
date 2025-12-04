@@ -13,32 +13,52 @@ return new class extends Migration {
             $table->decimal('harga_per_bulan', 15, 2)->default(0);
             $table->decimal('harga_per_tahun', 15, 2)->default(0);
             $table->integer('maksimal_pengguna')->default(1);
-            $table->integer('maksimal_produk')->default(100);
+            $table->integer('maksimal_produk')->default(0);
             $table->json('fitur')->nullable();
             $table->timestamps();
         });
 
         Schema::create('tenants', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('plan_id')->nullable()->constrained('plans');
-            $table->string('nama_toko');
+            $table->foreignId('plan_id')->nullable()->constrained('plans')->nullOnDelete();
+            $table->string('nama_tenant');
             $table->string('slug')->unique();
-            $table->string('nama_pemilik');
-            $table->string('email')->unique();
-            $table->string('nomor_hp');
+            $table->string('subdomain')->unique();
             $table->enum('status', ['aktif', 'suspend', 'masa_trial', 'kadaluarsa'])->default('masa_trial');
             $table->date('trial_berakhir_pada')->nullable();
             $table->date('langganan_berakhir_pada')->nullable();
             $table->timestamps();
         });
 
-        Schema::create('subscriptions', function (Blueprint $table) {
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('tenant_id')->nullable()->constrained('tenants')->nullOnDelete();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->enum('role', ['pemilik', 'admin', 'kasir', 'teknisi', 'keuangan', 'viewer'])->default('viewer');
+            $table->rememberToken();
+            $table->timestamps();
+        });
+
+        Schema::create('pelanggan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
-            $table->foreignId('plan_id')->constrained('plans');
-            $table->date('mulai_pada');
-            $table->date('berakhir_pada');
-            $table->enum('status', ['aktif', 'kadaluarsa', 'dibatalkan'])->default('aktif');
+            $table->string('nama_pelanggan');
+            $table->string('nomor_hp')->nullable();
+            $table->string('alamat')->nullable();
+            $table->string('email')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('supplier', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->string('nama_supplier');
+            $table->string('kontak')->nullable();
+            $table->string('alamat')->nullable();
+            $table->text('catatan')->nullable();
             $table->timestamps();
         });
 
@@ -53,7 +73,7 @@ return new class extends Migration {
         Schema::create('produk', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
-            $table->foreignId('kategori_id')->nullable()->constrained('kategori_produk');
+            $table->foreignId('kategori_produk_id')->nullable()->constrained('kategori_produk')->nullOnDelete();
             $table->string('nama_produk');
             $table->string('kode_sku')->unique();
             $table->enum('jenis_produk', ['barang_fisik', 'sparepart_servis']);
@@ -61,26 +81,6 @@ return new class extends Migration {
             $table->decimal('harga_jual', 15, 2)->default(0);
             $table->integer('stok')->default(0);
             $table->text('keterangan')->nullable();
-            $table->timestamps();
-        });
-
-        Schema::create('supplier', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
-            $table->string('nama_supplier');
-            $table->string('kontak')->nullable();
-            $table->string('alamat')->nullable();
-            $table->text('catatan')->nullable();
-            $table->timestamps();
-        });
-
-        Schema::create('pelanggan', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
-            $table->string('nama_pelanggan');
-            $table->string('nomor_hp')->nullable();
-            $table->string('alamat')->nullable();
-            $table->string('email')->nullable();
             $table->timestamps();
         });
 
@@ -98,7 +98,7 @@ return new class extends Migration {
         Schema::create('penjualan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
-            $table->foreignId('pelanggan_id')->nullable()->constrained('pelanggan');
+            $table->foreignId('pelanggan_id')->nullable()->constrained('pelanggan')->nullOnDelete();
             $table->string('nomor_invoice')->unique();
             $table->decimal('subtotal', 15, 2);
             $table->decimal('diskon', 15, 2)->default(0);
@@ -131,19 +131,19 @@ return new class extends Migration {
         Schema::create('tiket_servis', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
-            $table->foreignId('pelanggan_id')->nullable()->constrained('pelanggan');
+            $table->foreignId('pelanggan_id')->nullable()->constrained('pelanggan')->nullOnDelete();
             $table->string('nomor_tiket')->unique();
-            $table->enum('jenis_perangkat', ['Laptop', 'PC', 'Printer', 'Lainnya']);
+            $table->enum('jenis_perangkat', ['laptop', 'pc', 'printer', 'lainnya']);
             $table->string('merk_model')->nullable();
             $table->string('nomor_seri')->nullable();
             $table->text('keluhan');
-            $table->foreignId('teknisi_id')->nullable()->constrained('users');
+            $table->foreignId('teknisi_id')->nullable()->constrained('users')->nullOnDelete();
             $table->decimal('biaya_jasa', 15, 2)->default(0);
-            $table->enum('status_servis', ['Menunggu', 'Diperiksa', 'Menunggu Sparepart', 'Sedang Dikerjakan', 'Selesai', 'Dibatalkan'])->default('Menunggu');
+            $table->enum('status_servis', ['menunggu', 'diperiksa', 'menunggu_sparepart', 'sedang_dikerjakan', 'selesai', 'dibatalkan'])->default('menunggu');
             $table->timestamps();
         });
 
-        Schema::create('pemakaian_sparepart', function (Blueprint $table) {
+        Schema::create('sparepart_servis', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tiket_servis_id')->constrained('tiket_servis')->cascadeOnDelete();
             $table->foreignId('produk_id')->constrained('produk');
@@ -157,7 +157,7 @@ return new class extends Migration {
             $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
             $table->enum('jenis_garansi', ['produk', 'servis']);
             $table->unsignedBigInteger('referensi_id');
-            $table->foreignId('pelanggan_id')->nullable()->constrained('pelanggan');
+            $table->foreignId('pelanggan_id')->nullable()->constrained('pelanggan')->nullOnDelete();
             $table->date('tanggal_mulai');
             $table->date('tanggal_berakhir');
             $table->text('syarat_ketentuan')->nullable();
@@ -168,30 +168,41 @@ return new class extends Migration {
         Schema::create('klaim_garansi', function (Blueprint $table) {
             $table->id();
             $table->foreignId('garansi_id')->constrained('garansi')->cascadeOnDelete();
-            $table->foreignId('pelanggan_id')->nullable()->constrained('pelanggan');
+            $table->foreignId('pelanggan_id')->nullable()->constrained('pelanggan')->nullOnDelete();
             $table->text('deskripsi_keluhan');
-            $table->foreignId('teknisi_id')->nullable()->constrained('users');
-            $table->enum('status_klaim', ['Diajukan', 'Disetujui', 'Ditolak', 'Dalam Proses', 'Selesai'])->default('Diajukan');
+            $table->foreignId('teknisi_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->enum('status_klaim', ['diajukan', 'disetujui', 'ditolak', 'dalam_proses', 'selesai'])->default('diajukan');
             $table->text('catatan_penyelesaian')->nullable();
             $table->timestamps();
+        });
+
+        Schema::create('pengaturan_toko', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->string('kunci');
+            $table->text('nilai')->nullable();
+            $table->timestamps();
+
+            $table->unique(['tenant_id', 'kunci']);
         });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('pengaturan_toko');
         Schema::dropIfExists('klaim_garansi');
         Schema::dropIfExists('garansi');
-        Schema::dropIfExists('pemakaian_sparepart');
+        Schema::dropIfExists('sparepart_servis');
         Schema::dropIfExists('tiket_servis');
         Schema::dropIfExists('pembayaran');
         Schema::dropIfExists('item_penjualan');
         Schema::dropIfExists('penjualan');
         Schema::dropIfExists('pergerakan_stok');
-        Schema::dropIfExists('pelanggan');
-        Schema::dropIfExists('supplier');
         Schema::dropIfExists('produk');
         Schema::dropIfExists('kategori_produk');
-        Schema::dropIfExists('subscriptions');
+        Schema::dropIfExists('supplier');
+        Schema::dropIfExists('pelanggan');
+        Schema::dropIfExists('users');
         Schema::dropIfExists('tenants');
         Schema::dropIfExists('plans');
     }
