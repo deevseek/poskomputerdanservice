@@ -21,6 +21,10 @@ class Plan extends Model
         'fitur',
     ];
 
+    protected $casts = [
+        'fitur' => 'array',
+    ];
+
     public function tenants()
     {
         return $this->hasMany(Tenant::class);
