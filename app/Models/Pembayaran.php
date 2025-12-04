@@ -18,6 +18,7 @@ class Pembayaran extends Model
         'penjualan_id',
         'nominal',
         'metode',
+        'keterangan',
     ];
 
     public function penjualan()

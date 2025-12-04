@@ -18,8 +18,8 @@ class ItemPenjualan extends Model
         'penjualan_id',
         'produk_id',
         'qty',
-        'harga',
-        'total',
+        'harga_satuan',
+        'subtotal',
     ];
 
     public function penjualan()

@@ -8,16 +8,25 @@ Route::get('/masuk', [AuthController::class, 'index'])->name('login');
 
 Route::get('/daftar-tenant', [TenantRegisterController::class, 'create'])->name('tenant.register');
 Route::post('/daftar-tenant', [TenantRegisterController::class, 'store'])->name('tenant.register.store');
+Route::get('/admin/tenant', [TenantController::class, 'index'])->name('admin.tenant');
+Route::post('/admin/tenant/{id}/suspend', [TenantController::class, 'suspend'])->name('admin.tenant.suspend');
 
 Route::middleware(['tenant', 'auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('produk', ProdukController::class);
-    Route::resource('pelanggan', PelangganController::class);
+    Route::get('/pelanggan', [PelangganController::class, 'index'])->name('pelanggan.index');
+    Route::get('/pelanggan/buat', [PelangganController::class, 'create'])->name('pelanggan.create');
+    Route::post('/pelanggan', [PelangganController::class, 'store'])->name('pelanggan.store');
+    Route::get('/pelanggan/{id}/edit', [PelangganController::class, 'edit'])->name('pelanggan.edit');
+    Route::post('/pelanggan/{id}/update', [PelangganController::class, 'update'])->name('pelanggan.update');
+    Route::post('/pelanggan/{id}/hapus', [PelangganController::class, 'destroy'])->name('pelanggan.hapus');
     Route::resource('supplier', SupplierController::class);
     Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori.index');
     Route::post('/kategori', [KategoriController::class, 'store'])->name('kategori.store');
     Route::get('kasir', [KasirController::class, 'index'])->name('kasir.index');
-    Route::post('kasir/transaksi', [KasirController::class, 'store'])->name('kasir.store');
+    Route::post('kasir/proses', [KasirController::class, 'proses'])->name('kasir.proses');
+    Route::get('kasir/riwayat', [KasirController::class, 'riwayat'])->name('kasir.riwayat');
+    Route::get('kasir/riwayat/{id}', [KasirController::class, 'struk'])->name('kasir.struk');
     Route::get('/stok', [StokController::class, 'index'])->name('stok.index');
     Route::post('/stok/tambah', [StokController::class, 'tambah'])->name('stok.tambah');
     Route::post('/stok/kurangi', [StokController::class, 'kurangi'])->name('stok.kurangi');
@@ -42,7 +51,7 @@ Route::middleware(['tenant', 'auth'])->group(function () {
     Route::get('/servis/{id}', [ServisController::class, 'show'])->name('servis.show');
     Route::post('/servis/{id}/update-status', [ServisController::class, 'updateStatus'])->name('servis.updateStatus');
     Route::post('/servis/{id}/tambah-sparepart', [ServisController::class, 'tambahSparepart'])->name('servis.tambahSparepart');
-    Route::get('garansi/cek', [GaransiController::class, 'cek'])->name('garansi.cek');
+    Route::match(['get','post'], 'garansi/cek', [GaransiController::class, 'cek'])->name('garansi.cek');
     Route::get('garansi/{garansi}/klaim/buat', [KlaimGaransiController::class, 'create'])->name('garansi.klaim.create');
     Route::post('garansi/{garansi}/klaim', [KlaimGaransiController::class, 'store'])->name('garansi.klaim.store');
     Route::resource('garansi', GaransiController::class);

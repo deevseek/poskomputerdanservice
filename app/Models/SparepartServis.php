@@ -18,7 +18,8 @@ class SparepartServis extends Model
         'tiket_servis_id',
         'produk_id',
         'qty',
-        'biaya',
+        'harga',
+        'subtotal',
     ];
 
     public function tiketServis()

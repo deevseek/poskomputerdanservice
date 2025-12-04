@@ -2,42 +2,50 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Garansi;
+use App\Models\KlaimGaransi;
 use Illuminate\Http\Request;
 
 class KlaimGaransiController extends Controller
 {
-    private array $statusKlaim = [
-        'Diajukan',
-        'Disetujui',
-        'Ditolak',
-        'Dalam Proses',
-        'Selesai',
-    ];
+    private array $statusKlaim = ['diajukan', 'disetujui', 'ditolak', 'dalam_proses', 'selesai'];
 
-    public function create(int $garansi)
+    public function create(Garansi $garansi)
     {
-        $garansiData = collect(GaransiController::sampleGaransiData())->firstWhere('id', $garansi);
-        abort_if(!$garansiData, 404);
+        $this->authorizeTenant($garansi->tenant_id);
 
         return view('garansi.klaim_form', [
-            'garansi' => $garansiData,
+            'garansi' => $garansi,
             'statusKlaim' => $this->statusKlaim,
         ]);
     }
 
-    public function store(int $garansi, Request $request)
+    public function store(Request $request, Garansi $garansi)
     {
-        $garansiData = collect(GaransiController::sampleGaransiData())->firstWhere('id', $garansi);
-        abort_if(!$garansiData, 404);
+        $this->authorizeTenant($garansi->tenant_id);
 
-        $request->validate([
+        $data = $request->validate([
+            'pelanggan_id' => ['nullable', 'exists:pelanggan,id'],
             'deskripsi_keluhan' => ['required', 'string'],
+            'teknisi_id' => ['nullable', 'exists:users,id'],
             'status_klaim' => ['required', 'in:' . implode(',', $this->statusKlaim)],
             'catatan_penyelesaian' => ['nullable', 'string'],
         ]);
 
-        return redirect()
-            ->route('garansi.show', $garansi)
-            ->with('success', 'Klaim garansi telah diajukan dengan status awal: ' . $request->status_klaim . ' (simulasi tanpa penyimpanan data).');
+        $data['garansi_id'] = $garansi->id;
+        $data['tenant_id'] = $garansi->tenant_id;
+
+        KlaimGaransi::create($data);
+
+        return redirect()->route('garansi.show', $garansi->id)->with('success', 'Klaim garansi berhasil dikirim.');
+    }
+
+    private function authorizeTenant(int $tenantId): void
+    {
+        $tenant = app('tenant');
+
+        if ($tenant && $tenant->id !== $tenantId) {
+            abort(403);
+        }
     }
 }
