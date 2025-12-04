@@ -30,17 +30,29 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('tenant_id')->nullable()->constrained('tenants')->nullOnDelete();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->enum('role', ['pemilik', 'admin', 'kasir', 'teknisi', 'keuangan', 'viewer'])->default('viewer');
-            $table->rememberToken();
-            $table->timestamps();
-        });
+        if (! Schema::hasTable('users')) {
+            Schema::create('users', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('tenant_id')->nullable()->constrained('tenants')->nullOnDelete();
+                $table->string('name');
+                $table->string('email')->unique();
+                $table->timestamp('email_verified_at')->nullable();
+                $table->string('password');
+                $table->enum('role', ['pemilik', 'admin', 'kasir', 'teknisi', 'keuangan', 'viewer'])->default('viewer');
+                $table->rememberToken();
+                $table->timestamps();
+            });
+        } else {
+            Schema::table('users', function (Blueprint $table) {
+                if (! Schema::hasColumn('users', 'tenant_id')) {
+                    $table->foreignId('tenant_id')->nullable()->after('id')->constrained('tenants')->nullOnDelete();
+                }
+
+                if (! Schema::hasColumn('users', 'role')) {
+                    $table->enum('role', ['pemilik', 'admin', 'kasir', 'teknisi', 'keuangan', 'viewer'])->default('viewer')->after('password');
+                }
+            });
+        }
 
         Schema::create('pelanggan', function (Blueprint $table) {
             $table->id();
