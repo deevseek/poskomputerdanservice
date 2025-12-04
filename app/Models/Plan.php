@@ -14,8 +14,8 @@ class Plan extends Model
 
     protected $fillable = [
         'nama_paket',
-        'harga_per_bulan',
-        'harga_per_tahun',
+        'harga_bulanan',
+        'harga_tahunan',
         'maksimal_pengguna',
         'maksimal_produk',
         'fitur',

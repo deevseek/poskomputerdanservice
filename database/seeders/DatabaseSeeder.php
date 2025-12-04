@@ -12,8 +12,8 @@ class DatabaseSeeder extends Seeder
     {
         $basic = Plan::create([
             'nama_paket' => 'Basic',
-            'harga_per_bulan' => 150000,
-            'harga_per_tahun' => 1500000,
+            'harga_bulanan' => 150000,
+            'harga_tahunan' => 1500000,
             'maksimal_pengguna' => 5,
             'maksimal_produk' => 500,
             'fitur' => ['pos','servis','garansi']
