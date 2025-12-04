@@ -47,4 +47,19 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(KlaimGaransi::class, 'teknisi_id');
     }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'user_role');
+    }
+
+    public function permissions()
+    {
+        return $this->roles()->with('permissions')->get()->pluck('permissions')->flatten()->unique('id');
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        return $this->permissions()->where('nama_permission', $permission)->isNotEmpty();
+    }
 }

@@ -16,8 +16,8 @@ class PengaturanToko extends Model
 
     protected $fillable = [
         'tenant_id',
-        'kunci',
-        'nilai',
+        'key',
+        'value',
     ];
 
     public function tenant()

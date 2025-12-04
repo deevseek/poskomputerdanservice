@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{AuthController,TenantController,DashboardController,ProdukController,PelangganController,SupplierController,KasirController,ServisController,GaransiController,KlaimGaransiController,LaporanController,TenantRegisterController};
+use App\Http\Controllers\{AuthController,TenantController,DashboardController,ProdukController,PelangganController,SupplierController,KasirController,ServisController,GaransiController,KlaimGaransiController,LaporanController,TenantRegisterController, PengaturanController, RoleController, PermissionController, KeuanganController, KategoriController, StokController};
 
 Route::get('/', [TenantController::class, 'daftar'])->name('tenant.daftar');
 Route::get('/masuk', [AuthController::class, 'index'])->name('login');
@@ -14,8 +14,28 @@ Route::middleware(['tenant', 'auth'])->group(function () {
     Route::resource('produk', ProdukController::class);
     Route::resource('pelanggan', PelangganController::class);
     Route::resource('supplier', SupplierController::class);
+    Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori.index');
+    Route::post('/kategori', [KategoriController::class, 'store'])->name('kategori.store');
     Route::get('kasir', [KasirController::class, 'index'])->name('kasir.index');
     Route::post('kasir/transaksi', [KasirController::class, 'store'])->name('kasir.store');
+    Route::get('/stok', [StokController::class, 'index'])->name('stok.index');
+    Route::post('/stok/tambah', [StokController::class, 'tambah'])->name('stok.tambah');
+    Route::post('/stok/kurangi', [StokController::class, 'kurangi'])->name('stok.kurangi');
+    Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
+    Route::post('/pengaturan/simpan', [PengaturanController::class, 'simpan'])->name('pengaturan.simpan');
+    Route::get('/role', [RoleController::class, 'index'])->name('role.index');
+    Route::get('/role/buat', [RoleController::class, 'create'])->name('role.create');
+    Route::post('/role', [RoleController::class, 'store'])->name('role.store');
+    Route::get('/role/{id}/edit', [RoleController::class, 'edit'])->name('role.edit');
+    Route::post('/role/{id}/update', [RoleController::class, 'update'])->name('role.update');
+    Route::post('/role/{id}/hapus', [RoleController::class, 'destroy'])->name('role.hapus');
+    Route::get('/permission', [PermissionController::class, 'index'])->name('permission.index');
+    Route::post('/permission', [PermissionController::class, 'store'])->name('permission.store');
+    Route::get('/keuangan', [KeuanganController::class, 'index'])->name('keuangan.index');
+    Route::get('/keuangan/buat', [KeuanganController::class, 'create'])->name('keuangan.buat');
+    Route::post('/keuangan', [KeuanganController::class, 'store'])->name('keuangan.store');
+    Route::get('/keuangan/laporan', [KeuanganController::class, 'laporan'])->name('keuangan.laporan');
+    Route::get('/keuangan/laba-rugi', [KeuanganController::class, 'labaRugi'])->name('keuangan.laba_rugi');
     Route::get('/servis', [ServisController::class, 'index'])->name('servis.index');
     Route::get('/servis/buat', [ServisController::class, 'create'])->name('servis.create');
     Route::post('/servis', [ServisController::class, 'store'])->name('servis.store');

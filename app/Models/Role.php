@@ -5,22 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * Model untuk mencatat pergerakan stok per produk.
- */
-class PergerakanStok extends Model
+class Role extends Model
 {
     use HasFactory;
 
-    protected $table = 'pergerakan_stok';
-
     protected $fillable = [
         'tenant_id',
-        'produk_id',
-        'tipe',
-        'sumber',
-        'jumlah',
-        'keterangan',
+        'nama_role',
+        'deskripsi',
     ];
 
     public function tenant()
@@ -28,8 +20,13 @@ class PergerakanStok extends Model
         return $this->belongsTo(Tenant::class);
     }
 
-    public function produk()
+    public function permissions()
     {
-        return $this->belongsTo(Produk::class);
+        return $this->belongsToMany(Permission::class, 'role_permission');
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_role');
     }
 }

@@ -21,12 +21,11 @@ class DatabaseSeeder extends Seeder
 
         $tenant = Tenant::create([
             'plan_id' => $basic->id,
-            'nama_toko' => 'Contoh Komputer',
+            'nama_tenant' => 'Contoh Komputer',
             'slug' => 'contoh-komputer',
-            'nama_pemilik' => 'Admin Utama',
-            'email' => 'admin@contoh.com',
-            'nomor_hp' => '08123456789',
-            'status' => 'aktif'
+            'subdomain' => 'contoh',
+            'status' => 'aktif',
+            'trial_berakhir_pada' => now()->addDays(14),
         ]);
 
         $kategori = KategoriProduk::create([
@@ -39,11 +38,13 @@ class DatabaseSeeder extends Seeder
             'tenant_id' => $tenant->id,
             'kategori_id' => $kategori->id,
             'nama_produk' => 'SSD 512GB',
-            'kode_sku' => 'SSD-512',
+            'sku' => 'SSD-512',
             'jenis_produk' => 'barang_fisik',
             'harga_beli' => 500000,
             'harga_jual' => 750000,
             'stok' => 10,
         ]);
+
+        $this->call(RolePermissionSeeder::class);
     }
 }
