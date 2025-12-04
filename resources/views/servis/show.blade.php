@@ -1,96 +1,129 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1 class="mb-3">Detail Tiket Servis #{{ $servis->id }}</h1>
+<div class="mb-6 flex items-center justify-between">
+    <div>
+        <h1 class="text-2xl font-semibold">Detail Tiket Servis</h1>
+        <p class="text-sm text-slate-500">Pantau progres perbaikan</p>
+    </div>
+    <div class="flex gap-2">
+        <button class="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow">Update Status</button>
+        <a href="{{ url('/servis') }}" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-primary hover:text-primary dark:border-slate-700 dark:bg-slate-800">Kembali</a>
+    </div>
+</div>
 
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <p><strong>Pelanggan:</strong> {{ $servis->pelanggan->nama_pelanggan ?? '-' }}</p>
-            <p><strong>Perangkat:</strong> {{ $servis->jenis_perangkat }} {{ $servis->merk }} {{ $servis->model }}</p>
-            <p><strong>Nomor Seri:</strong> {{ $servis->nomor_seri ?? '-' }}</p>
-            <p><strong>Keluhan:</strong> {{ $servis->keluhan }}</p>
+<div class="grid gap-6 lg:grid-cols-3">
+    <div class="lg:col-span-2 space-y-4">
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <div class="flex flex-wrap items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500">Kode Tiket</p>
+                    <p class="text-xl font-semibold">SRV-032</p>
+                    <div class="mt-2 flex gap-2 text-xs">
+                        <span class="rounded-full bg-blue-100 px-3 py-1 font-semibold text-blue-700">Dalam Pengerjaan</span>
+                        <span class="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">Teknisi: Dimas</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-slate-500">Estimasi</p>
+                    <p class="text-lg font-semibold">Rp 850.000</p>
+                    <p class="text-xs text-slate-500">Estimasi selesai: 15 Jan 2024</p>
+                </div>
+            </div>
+            <div class="mt-4 grid gap-3 text-sm md:grid-cols-2">
+                <div class="rounded-xl bg-slate-50 p-4 dark:bg-slate-900">
+                    <p class="text-xs text-slate-500">Pelanggan</p>
+                    <p class="text-lg font-semibold">Ahmad Kurnia</p>
+                    <p class="text-xs text-slate-500">0812-1234-5678</p>
+                </div>
+                <div class="rounded-xl bg-slate-50 p-4 dark:bg-slate-900">
+                    <p class="text-xs text-slate-500">Perangkat</p>
+                    <p class="text-lg font-semibold">Laptop Gaming</p>
+                    <p class="text-xs text-slate-500">SN: ABC123XYZ</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold">Keluhan</h3>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Laptop sering mati mendadak saat bermain gim, kipas berisik, dan suhu tinggi.</p>
+            </div>
         </div>
-        <div class="col-md-6">
-            <p><strong>Teknisi:</strong> {{ $servis->teknisi->name ?? '-' }}</p>
-            <p><strong>Status:</strong> {{ $servis->status_servis }}</p>
-            <p><strong>Biaya Jasa:</strong> Rp {{ number_format($servis->biaya_jasa,0,',','.') }}</p>
-            <p><strong>Catatan:</strong> {{ $servis->catatan_teknisi ?? '-' }}</p>
+
+        <div class="grid gap-4 md:grid-cols-2">
+            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">Timeline Status</h3>
+                    <button class="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">Tambah Log</button>
+                </div>
+                <div class="mt-4 space-y-3 text-sm">
+                    @foreach([
+                        ['12 Jan 09:00','Pemeriksaan awal','blue'],
+                        ['12 Jan 11:30','Ganti pasta termal','emerald'],
+                        ['12 Jan 14:00','Menunggu approval biaya','amber'],
+                    ] as $log)
+                        <div class="flex gap-3">
+                            <div class="mt-1 h-2 w-2 rounded-full bg-{{ $log[2] }}-500"></div>
+                            <div>
+                                <p class="font-semibold">{{ $log[0] }}</p>
+                                <p class="text-xs text-slate-500">{{ $log[1] }}</p>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">Sparepart Digunakan</h3>
+                    <button class="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white">Tambah</button>
+                </div>
+                <div class="mt-4 space-y-3 text-sm">
+                    <div class="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2 dark:bg-slate-900">
+                        <div>
+                            <p class="font-semibold">Pasta Thermal Pro</p>
+                            <p class="text-xs text-slate-500">Qty 1 • Rp 95.000</p>
+                        </div>
+                        <button class="text-red-500 hover:text-red-600">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2 dark:bg-slate-900">
+                        <div>
+                            <p class="font-semibold">Fan Laptop</p>
+                            <p class="text-xs text-slate-500">Qty 1 • Rp 250.000</p>
+                        </div>
+                        <button class="text-red-500 hover:text-red-600">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <form class="mb-4" method="POST" action="{{ route('servis.updateStatus', $servis->id) }}">
-        @csrf
-        <div class="row g-2 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label">Perbarui Status</label>
-                <select name="status" class="form-select">
-                    @foreach($statuses as $status)
-                        <option value="{{ $status }}" @selected($servis->status_servis === $status)>{{ $status }}</option>
-                    @endforeach
+    <div class="space-y-4">
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <h3 class="text-lg font-semibold">Update Status</h3>
+            <div class="mt-4 space-y-3 text-sm">
+                <label class="block text-sm font-semibold">Status Servis</label>
+                <select class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-900">
+                    <option>Menunggu</option>
+                    <option selected>Dalam Pengerjaan</option>
+                    <option>Selesai</option>
+                    <option>Siap Diambil</option>
                 </select>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Catatan Teknisi</label>
-                <input type="text" name="catatan_teknisi" value="{{ old('catatan_teknisi', $servis->catatan_teknisi) }}" class="form-control">
-            </div>
-            <div class="col-md-2">
-                <button class="btn btn-primary w-100" type="submit">Update</button>
+                <label class="block text-sm font-semibold">Catatan</label>
+                <textarea rows="4" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 dark:border-slate-700 dark:bg-slate-900"></textarea>
+                <button class="w-full rounded-xl bg-primary px-4 py-2 font-semibold text-white shadow hover:bg-primary/90">Simpan Status</button>
             </div>
         </div>
-    </form>
-
-    <h4>Sparepart Digunakan</h4>
-    <table class="table table-sm">
-        <thead>
-            <tr>
-                <th>Produk</th>
-                <th>Qty</th>
-                <th>Harga</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($servis->sparepartServis as $sp)
-                <tr>
-                    <td>{{ $sp->produk->nama_produk }}</td>
-                    <td>{{ $sp->qty }}</td>
-                    <td>Rp {{ number_format($sp->harga,0,',','.') }}</td>
-                    <td>Rp {{ number_format($sp->subtotal,0,',','.') }}</td>
-                </tr>
-            @empty
-                <tr><td colspan="4" class="text-center">Belum ada sparepart.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
-
-    <form method="POST" action="{{ route('servis.tambahSparepart', $servis->id) }}" class="mt-3">
-        @csrf
-        <div class="row g-2 align-items-end">
-            <div class="col-md-5">
-                <label class="form-label">Sparepart</label>
-                <select name="produk_id" class="form-select">
-                    @foreach($spareparts as $p)
-                        <option value="{{ $p->id }}">{{ $p->nama_produk }} (Stok: {{ $p->stok }})</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Qty</label>
-                <input type="number" name="qty" class="form-control" min="1" value="1">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Harga Satuan</label>
-                <input type="number" step="0.01" name="harga" class="form-control" value="0">
-            </div>
-            <div class="col-md-1">
-                <button class="btn btn-success w-100" type="submit">Tambah</button>
-            </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <h3 class="text-lg font-semibold">Informasi Pembayaran</h3>
+            <dl class="mt-3 space-y-2 text-sm">
+                <div class="flex justify-between"><dt>Estimasi Biaya</dt><dd class="font-semibold">Rp 850.000</dd></div>
+                <div class="flex justify-between"><dt>Sparepart</dt><dd class="font-semibold">Rp 345.000</dd></div>
+                <div class="flex justify-between"><dt>Jasa Servis</dt><dd class="font-semibold">Rp 505.000</dd></div>
+                <div class="flex justify-between text-lg font-bold"><dt>Total</dt><dd class="text-primary">Rp 1.200.000</dd></div>
+            </dl>
+            <button class="mt-3 w-full rounded-xl border border-dashed border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/5">Buat Invoice</button>
         </div>
-    </form>
+    </div>
 </div>
 @endsection
