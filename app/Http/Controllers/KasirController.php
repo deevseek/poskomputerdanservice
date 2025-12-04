@@ -23,7 +23,7 @@ class KasirController extends Controller
         if ($search) {
             $produkQuery->where(function ($query) use ($search) {
                 $query->where('nama_produk', 'like', "%{$search}%")
-                    ->orWhere('kode_sku', 'like', "%{$search}%");
+                    ->orWhere('sku', 'like', "%{$search}%");
             });
         }
 

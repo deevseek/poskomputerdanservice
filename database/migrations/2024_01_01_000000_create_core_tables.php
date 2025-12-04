@@ -85,9 +85,9 @@ return new class extends Migration {
         Schema::create('produk', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
-            $table->foreignId('kategori_produk_id')->nullable()->constrained('kategori_produk')->nullOnDelete();
+            $table->foreignId('kategori_id')->nullable()->constrained('kategori_produk')->nullOnDelete();
             $table->string('nama_produk');
-            $table->string('kode_sku')->unique();
+            $table->string('sku')->unique();
             $table->enum('jenis_produk', ['barang_fisik', 'sparepart_servis']);
             $table->decimal('harga_beli', 15, 2)->default(0);
             $table->decimal('harga_jual', 15, 2)->default(0);
